@@ -2,18 +2,17 @@ import { TLVParser } from "../lib/tlv-parser";
 import { TLV } from "../lib/tlv";
 import { TLVUtils } from "../lib/tlv-utils";
 import { TLVEncoder } from "../lib/tlv-encoder";
+const chai = require('chai');
 
+chai.should();
+var parser = new TLVParser();
+    
+const expect = chai.expect;
 describe('TLV', function () {
-    var chai = require('chai');
-    var expect = chai.expect;
-    // var tlv = require('../lib/tlv');
-    // var TLV = tlv.TLV;
-    chai.should();
-
     describe('#parse', function () {
         it('should return a TLV object when provided a buffer with primitive tag on 1 byte and length on 1 byte.', function () {
             var buf = Buffer.from([0x80, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]);
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x80);
@@ -26,7 +25,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with primitive tag on 1 byte and length 0x00', function () {
-            var res = TLVParser.parse(Buffer.from([0x80, 0x00]));
+            var res = parser.parse(Buffer.from([0x80, 0x00]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x80);
@@ -45,7 +44,7 @@ describe('TLV', function () {
                 buf[i] = i;
             }
 
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x80);
@@ -65,7 +64,7 @@ describe('TLV', function () {
                 buf[i] = i;
             }
 
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0xC4);
@@ -86,7 +85,7 @@ describe('TLV', function () {
                 buf[i] = i;
             }
 
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x80);
@@ -108,7 +107,7 @@ describe('TLV', function () {
                 buf[i] = i;
             }
 
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x12);
@@ -129,7 +128,7 @@ describe('TLV', function () {
             buf[6] = 0xFF;
             buf[buf.length - 1] = 0xFF;
 
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x80);
@@ -149,11 +148,11 @@ describe('TLV', function () {
             buf[5] = 0x00;
             buf[6] = 0x00;
 
-            expect(TLVParser.parse(buf)).to.throw();
+            expect(parser.parse(buf)).to.throw();
         });
 
         it('should return a TLV object when provided a buffer with constructed tag on 1 byte and length on 1 byte.', function () {
-            var res = TLVParser.parse(Buffer.from([0xE1, 0x08, 0x80, 0x02, 0xBA, 0xBE, 0x82, 0x02, 0xBB, 0xBC]));
+            var res = parser.parse(Buffer.from([0xE1, 0x08, 0x80, 0x02, 0xBA, 0xBE, 0x82, 0x02, 0xBB, 0xBC]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0xE1);
@@ -167,7 +166,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with constructed tag on 1 byte and zero length.', function () {
-            var res = TLVParser.parse(Buffer.from([0xE1, 0x00]));
+            var res = parser.parse(Buffer.from([0xE1, 0x00]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0xE1);
@@ -178,7 +177,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with constructed tlvs with 2 levels of nesting', function () {
-            var res = TLVParser.parse(Buffer.from([0xE1, 0x0C, 0xA0, 0x04, 0x82, 0x02, 0xCA, 0xFE, 0x00, 0x00, 0x83, 0x02, 0xBB, 0xBC]));
+            var res = parser.parse(Buffer.from([0xE1, 0x0C, 0xA0, 0x04, 0x82, 0x02, 0xCA, 0xFE, 0x00, 0x00, 0x83, 0x02, 0xBB, 0xBC]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0xE1);
@@ -193,7 +192,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with primitive tag on 2 bytes and length on 2 bytes.', function () {
-            var res = TLVParser.parse(Buffer.from([0x9F, 0x70, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
+            var res = parser.parse(Buffer.from([0x9F, 0x70, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
 
            expect(res).to.be.an.instanceof(TLV);
            expect(res.tag).to.equal(0x9F70);
@@ -204,7 +203,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with primitive tag on 3 bytes and length on 2 bytes.', function () {
-            var res = TLVParser.parse(Buffer.from([0x9F, 0x85, 0x22, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
+            var res = parser.parse(Buffer.from([0x9F, 0x85, 0x22, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x9F8522);
@@ -215,7 +214,7 @@ describe('TLV', function () {
         });
 
         it('should return a TLV object when provided a buffer with primitive tag on 4 bytes and length on 2 bytes.', function () {
-            var res = TLVParser.parse(Buffer.from([0x1F, 0x85, 0xA2, 0x01, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
+            var res = parser.parse(Buffer.from([0x1F, 0x85, 0xA2, 0x01, 0x81, 0x04, 0xCA, 0xFE, 0xBA, 0xBE]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0x1F85A201);
@@ -228,11 +227,11 @@ describe('TLV', function () {
         it('should throw an exception when provided a buffer with primitive tag on 5 bytes.', function () {
             var buf = Buffer.from([0x1F, 0x85, 0xA2, 0x81, 0x01, 0x00]);
 
-            expect(TLVParser.parse(buf)).to.throw(RangeError);
+            expect(parser.parse(buf)).to.throw(RangeError);
         });
 
         it('should return a TLV object when provided a buffer with constructed tag and indefinite length and spurious data after the end.', function () {
-            var res = TLVParser.parse(Buffer.from([0xE1, 0x80, 0x81, 0x02, 0x00, 0x00, 0x82, 0x02, 0xBB, 0xBC, 0x00, 0x00, 0xAA, 0xFF]));
+            var res = parser.parse(Buffer.from([0xE1, 0x80, 0x81, 0x02, 0x00, 0x00, 0x82, 0x02, 0xBB, 0xBC, 0x00, 0x00, 0xAA, 0xFF]));
 
             expect(res).to.be.an.instanceof(TLV);
             expect(res.tag).to.equal(0xE1);
@@ -247,7 +246,7 @@ describe('TLV', function () {
 
         it('should return a TLV object when provided a buffer with constructed tag and indefinite length.', function () {
             var buf = Buffer.from([0xe1, 0x80, 0xa0, 0x03, 0x81, 0x01, 0x03, 0x00, 0x00]);
-            var res = TLVParser.parse(buf);
+            var res = parser.parse(buf);
 
             expect(res.tag).to.equal(0xe1);
             expect(res.constructed).to.equal(true);
@@ -258,7 +257,7 @@ describe('TLV', function () {
         it('should throw an exception when provided a buffer with primitive tag and indefinite length.', function () {
             var buf = Buffer.from([0xC0, 0x80, 0x81, 0x01, 0x00, 0x00, 0x00]);
 
-            expect(TLVParser.parse(buf)).to.throw(Error);
+            expect(parser.parse(buf)).to.throw(Error);
         });
     });
 
@@ -446,7 +445,7 @@ describe('TLV', function () {
     describe('#parseTag', function () {
         it('should parse a tag and returns it as an object with tag, length and constructed properties', function () {
             var buf = Buffer.from([0x9f, 0x70]);
-            var tag = TLVParser.parseTag(buf);
+            var tag = parser.parseTag(buf);
             expect(tag.tag).to.equal(0x9f70);
             expect(tag.length).to.equal(2);
             expect(tag.constructed).to.equal(false);
@@ -456,7 +455,7 @@ describe('TLV', function () {
     describe('#parseAllTags', function () {
         it('should parse the entire buffer as TLV tags and returns an array of integers with the tags', function () {
             var buf = Buffer.from([0x9f, 0x70, 0x80, 0xA0, 0x9f, 0x80, 0x7f, 0x81]);
-            var tag = TLVParser.parseAllTags(buf);
+            var tag = parser.parseAllTags(buf);
 
             expect(tag[0]).to.equal(0x9f70);
             expect(tag[1]).to.equal(0x80);

@@ -9,11 +9,11 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {Array}
      */
-    static parseAll(buf: Buffer, stopOnEOC = false) {
+    parseAll(buf: Buffer, stopOnEOC = false) {
         var tlvs = [];
 
         for (var i = 0; i < buf.length; i += tlvs[tlvs.length - 1].originalLength) {
-            var tlv = TLVParser.parse(buf.slice(i));
+            var tlv = this.parse(buf.slice(i));
 
             if (stopOnEOC && tlv.tag == 0x00 && tlv.originalLength == 2) {
                 break;
@@ -35,9 +35,9 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {TLV}
      */
-    static parse(buf: Buffer): TLV {
+    parse(buf: Buffer): TLV {
         var index = 0;
-        var tag = TLVParser.parseTag(buf);
+        var tag = this.parseTag(buf);
         index += tag.length;
 
         var len = 0;
@@ -50,7 +50,7 @@ export class TLVParser {
                 throw new Error("Only constructed TLV can have indefinite length");
             }
 
-            value = TLVParser.parseAll(buf.slice(index), true);
+            value = this.parseAll(buf.slice(index), true);
             for (var i = 0; i < value.length; i++) {
                 index += value[i].originalLength;
             }
@@ -80,7 +80,7 @@ export class TLVParser {
         index += len;
 
         if (tag.constructed) {
-            value = TLVParser.parseAll(value);
+            value = this.parseAll(value);
         } else {
             var tmpBuffer = value;
             value = new Buffer(tmpBuffer.length);
@@ -90,6 +90,9 @@ export class TLVParser {
         return new TLV(tag.tag, value, false, index);
     }
 
+    isConstructed(tag: number) {
+        return (tag & 0x20) == 0x20;
+    }
 
     /**
      * Parses the first bytes of the given Buffer as a TLV tag. The tag is returned as an object
@@ -98,10 +101,10 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {object}
      */
-    static parseTag(buf: Buffer) {
+    parseTag(buf: Buffer) {
         var index = 0;
         var tag = buf[index++];
-        var constructed = (tag & 0x20) == 0x20;
+        var constructed = this.isConstructed(tag);
 
         if ((tag & 0x1F) == 0x1F) {
             do {
@@ -123,12 +126,12 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {Array}
      */
-    static parseAllTags(buf: Buffer) {
+    parseAllTags(buf: Buffer) {
         var result = [];
         var element;
 
         while (buf.length > 0) {
-            element = TLVParser.parseTag(buf);
+            element = this.parseTag(buf);
             buf = buf.slice(element.length);
             result.push(element.tag);
         }
