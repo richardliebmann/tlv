@@ -6,7 +6,7 @@
   "author": "Ksenia Lebedeva",
   "main": "./lib/tlv.js",
   "scripts": {
-    "test": "mocha -R spec ./test/tlv.js"
+    "test": "mocha -R spec ./test/*.js"
   },
   "repository": {
     "type": "git",
@@ -20,8 +20,12 @@
     "url": "https://github.com/briksoftware/tlv/issues"
   },
   "devDependencies": {
-    "mocha": "1.18.x",
-    "chai": "1.9.x"
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.12.17",
+    "chai": "4.2.0",
+    "mocha": "6.2.2",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
   },
   "engines": {
     "node": ">= 0.10"
