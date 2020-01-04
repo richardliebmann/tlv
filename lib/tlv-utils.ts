@@ -37,7 +37,7 @@ export class TLVUtils {
 
         if (constructed) {
             for (var i = 0; i < value.length; i++) {
-                if (value instanceof Buffer) {
+                if (value instanceof Buffer || typeof value[i] === "number") {
                     lenValue = lenValue + 1;
                 }
                 else {

@@ -17,8 +17,6 @@ export class TLV {
      * @param {number}
      */
     constructor(private _tag: number, private _value: any, private _indefiniteLength?: boolean, private _originalLength?: number) {
-
-
     }
 
     /**
@@ -186,5 +184,24 @@ export class TLV {
      */
     setIntValue(intValue: number) {
         TLVUtils.encodeNumber(this.value, intValue, this.value.length);
+    }
+
+    toString() {
+        if(this.value && Array.isArray(this.value) && this.value.length > 0 && this.value[0] instanceof TLV) {
+            var s = "TLV 0x" + this.tag.toString(16);
+
+            this.value.forEach(tlv => {
+                var toks =  (tlv + "").split("\n");
+
+                toks.forEach(j => {
+                    s += "\n\t" + j
+                })
+            })
+
+            return s;
+        }
+        else {
+            return "TLV 0x" + this.tag.toString(16) + " [" + (Array.isArray(this.value) ? this.value.map(c => "0x" + (c).toString(16)).join(" ") : this.value) + "]";
+        }
     }
 }

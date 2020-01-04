@@ -9,7 +9,7 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {Array}
      */
-    parseAll(buf: Buffer, stopOnEOC = false) {
+    parseAll(buf: Buffer | number[], stopOnEOC = false) {
         var tlvs = [];
 
         for (var i = 0; i < buf.length; i += tlvs[tlvs.length - 1].originalLength) {
@@ -35,8 +35,7 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {TLV}
      */
-    parse(buf: Buffer): TLV {
-        var index = 0;
+    parse(buf: Buffer | number[], index = 0): TLV {
         var tag = this.parseTag(buf);
         index += tag.length;
 
@@ -82,9 +81,14 @@ export class TLVParser {
         if (tag.constructed) {
             value = this.parseAll(value);
         } else {
-            var tmpBuffer = value;
-            value = new Buffer(tmpBuffer.length);
-            tmpBuffer.copy(value);
+            if(Array.isArray(value)) {
+                value = value.slice();
+            }
+            else {
+                var tmpBuffer = value;
+                value = new Buffer(tmpBuffer.length);
+                tmpBuffer.copy(value);
+            }
         }
 
         return new TLV(tag.tag, value, false, index);
@@ -101,7 +105,7 @@ export class TLVParser {
      * @param {Buffer} buf
      * @return {object}
      */
-    parseTag(buf: Buffer) {
+    parseTag(buf: Buffer | number[]) {
         var index = 0;
         var tag = buf[index++];
         var constructed = this.isConstructed(tag);
